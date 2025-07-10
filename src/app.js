@@ -3,15 +3,12 @@ const express=require('express');
 const app=express();
 const User =require("./models/user");
 
+app.use(express.json());
+
 app.post("/signup", async (req,res)=> {
    //creating new user/ insatnce of User model with this data
 
-    const user =new User({
-      firstName: "Pratik",
-      lastName : "das",
-      EmailId : "pratikdas@gmail.com",
-      password : "pratik1234"
-    });
+    const user =new User(req.body);
     try{ await user.save();
 res.send("User added successfully");
 }
