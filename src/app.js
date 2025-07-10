@@ -46,7 +46,30 @@ try{
  }
 
 });
+//delete a user
+app.delete("/user", async (req,res)=> {
+   const userId=req.body.userId;
+try{
+    const user=await User.findByIdAndDelete(userId); //finding all user from the database with empty filter {}
+     res.send("User deleted successsfuly");
+ }
+ catch(err){
+    res.status(400).send("error in the user" + err.message);
+ }
 
+});
+//update the user
+app.patch("/user", async (req,res)=> {
+   const userId=req.body.userId;
+   const data= req.body;
+try{
+    await User.findByIdAndUpdate({_id:userId},data); //finding all user from the database with empty filter {}
+     res.send("User updated successsfuly");
+ }
+ catch(err){
+    res.status(400).send("error in the user" + err.message);
+ }
+});
 connectDB()
  .then(()=>{ // This will return us a promise
   console.log("DataBase connection is established"); //Happy case
