@@ -59,10 +59,20 @@ try{
 
 });
 //update the user
-app.patch("/user", async (req,res)=> {
-   const userId=req.body.userId;
+app.patch("/user/:userId", async (req,res)=> {
+   const userId=req.params?.userId; //collecting userid direct from url
    const data= req.body;
+
 try{
+
+   const Allowed_Updates=["photoUrl","About","gender","age","Skills"];
+   const isUpdateAllowed=Object.keys(data).every((k) => Allowed_Updates.includes(k));
+   if(!isUpdateAllowed){
+      throw new Error("Update not Allowed");
+   }
+   if(data?.Skills.length>10){
+      throw new Error("skills cannot be more than 10");
+   }
     await User.findByIdAndUpdate({_id:userId},data); //finding all user from the database with empty filter {}
      res.send("User updated successsfuly");
  }
