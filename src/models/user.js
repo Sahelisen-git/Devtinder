@@ -1,4 +1,5 @@
 const mongoose=require('mongoose');
+const validator=require('validator');
 
 
 const userSchema = new mongoose.Schema({
@@ -17,12 +18,22 @@ const userSchema = new mongoose.Schema({
     required: true, 
     unique: true,       //Unique check there should be one person with one emailid can sign up
     lowercase: true,    //all the letter should be stored  in lower case flag in the databse
-    trim: true         //no space take in DB
+    trim: true  , 
+     validate(value){
+      if(!validator.isEmail(value)){
+        throw new Error("Invalid email address"+value);
+      }
+    },     //no space take in DB
   },
   password: {
     type: String,
     required: true,
-    minlength : 4, // password should be minimum length of 4 char(only for type string we can use this flag)
+    // minlength : 4, // password should be minimum length of 4 char(only for type string we can use this flag)
+    validate(value){
+      if(!validator.isStrongPassword(value)){
+        throw new Error("Enter a strong password"+value);
+      }
+    }, 
   },
   age: {
     type: Number,
@@ -40,6 +51,11 @@ const userSchema = new mongoose.Schema({
   photoUrl: {
     type: String,
     default : "https://tamilnaducouncil.ac.in/wp-content/uploads/2020/04/dummy-avatar.jpg",
+    validate(value){
+      if(!validator.isURL(value)){
+        throw new Error("Invalid photo URL"+value);
+      }
+    }, 
 
   },
   About: {
