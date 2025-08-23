@@ -2,21 +2,54 @@ const express=require('express');
  const connectDB =require("./config/Database");
 const app=express();
 const User =require("./models/user");
+const bcrypt =require('bcrypt');
+const {validateSignUpdata}= require("./utils/validation")
 
 app.use(express.json());
 
 app.post("/signup", async (req,res)=> {
+   //validate signup data
+   try{
+ validateSignUpdata(req);
    //creating new user/ insatnce of User model with this data
-
-    const user =new User(req.body);
-    try{ await user.save();
+ //encrypting password   
+  const {firstName, lastName,EmailId,password}=req.body;
+  const passwordHash= await bcrypt.hash(password,10);
+  console.log(passwordHash);
+    const user =new User(
+      {
+         firstName,
+         lastName,
+         EmailId,
+         password: passwordHash,
+      }
+    );
+     await user.save();
 res.send("User added successfully");
 }
 catch(err){
-   res.status(400).send("error in the user" + err.message);
+   res.status(400).send("ERROR: " + err.message);
 }
 });
-
+app.post("/login", async (req,res)=> {
+try{
+   const {EmailId,password}=req.body;
+     const user= await User.findOne({EmailId: EmailId});
+     if(!user){
+      throw new Error("EnmailId is not valid");
+     }
+    const ispasswordValid= await bcrypt.compare(password, user.password);
+      if(ispasswordValid){
+        res.send("login Successfull");
+      }
+      else{
+         throw new Error("Password is not correct");
+      }
+}
+catch(err){
+   res.status(400).send("ERROR: " + err.message);
+}
+});
 //get user by email
 app.get("/user", async (req,res)=> {
  const Useremail=req.body.EmailId; //reading the requuest from the body what ever the email I am gettin
