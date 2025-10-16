@@ -5,7 +5,8 @@ const User =require("./models/user");
 const bcrypt =require('bcrypt');
 const {validateSignUpdata}= require("./utils/validation");
 const cookieParser= require("cookie-parser");
-const jwt=require("jsonwebtoken");
+const jwt=require("jsonwebtoken"); 
+const {userAth, userAuth} =require("./middlewares/Auth");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -47,7 +48,9 @@ try{
          const token=await jwt.sign({_id: user._id },"DEV@Tinder$790");
       
          //Add the token to cookie and send the response back to user
-         res.cookie("token",token);
+         res.cookie("token",token,{expires :new Date(Date.now()+ 8 *3600000),
+
+         });
          res.send("login Successfull");
       }
       else{
@@ -58,29 +61,23 @@ catch(err){
    res.status(400).send("ERROR: " + err.message);
 }
 });
-app.get("/profile", async (req,res)=> {
+app.get("/profile", userAuth, async (req,res)=> {
 
 try{
- const  cookies= req.cookies;
-  const {token}=cookies; //extract the token from the cookie
-  //validate the token
-  if(!token){
-   throw new Error("Invalid Token");
-  }
-   const decodedMessage= await jwt.verify(token, "DEV@Tinder$790");
-    const {_id} =decodedMessage; // fetching Id from decoded Message
+ 
     
- const user = await User.findById(_id);
- if(!user){
-   throw new Error("User does not exist");
- }
-//  console.log(cookies);
+ const user = req.user;
  res.send(user);
 }
 catch(err){
     res.status(400).send("error in the user " + err.message);
  }
 });
+app.post("/sendConnectionRequest", userAuth, async (req,res)=> {
+ const user=req.user;
+ console.log("Sending connection request");
+ res.send(user.firstName + "sent the connection req");
+   });
 //get user by email
 app.get("/user", async (req,res)=> {
  const Useremail=req.body.EmailId; //reading the requuest from the body what ever the email I am gettin
