@@ -1,5 +1,5 @@
 const express=require('express');
- const connectDB =require("./config/Database");
+const connectDB =require("./config/Database");
 const app=express();
 const User =require("./models/user");
 const bcrypt =require('bcrypt');
@@ -40,12 +40,12 @@ try{
    const {EmailId,password}=req.body;
      const user= await User.findOne({EmailId: EmailId});
      if(!user){
-      throw new Error("EnmailId is not valid");
+      throw new Error("Invalid credentials");
      }
-    const ispasswordValid= await bcrypt.compare(password, user.password);
+    const ispasswordValid= await user.validatePassword(password);
       if(ispasswordValid){
          //create a JWT token
-         const token=await jwt.sign({_id: user._id },"DEV@Tinder$790");
+         const token= await user.getJWT();
       
          //Add the token to cookie and send the response back to user
          res.cookie("token",token,{expires :new Date(Date.now()+ 8 *3600000),
