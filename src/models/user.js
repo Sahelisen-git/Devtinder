@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: true, //to check the mandatory requirements
-    trim: true
+    trim: true,
+    index: true
   },
   lastName: {
     type: String,
@@ -73,6 +74,7 @@ const userSchema = new mongoose.Schema({
   timestamps:true
 });
  
+userSchema.index({firstName :1, lastName : 1});
 userSchema.methods.getJWT = async function () {
    const user= this; // this refers instaces of user model
    const token = await jwt.sign({_id: user._id },"DEV@Tinder$790", 
