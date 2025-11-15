@@ -12,10 +12,13 @@ app.use(cookieParser());
 const authRouter=require("./routes/auth");
 const profileRouter=require("./routes/profile");
 const requestRouter=require("./routes/req");
+const userRouter=require("./routes/user");
+const User = require("./models/user");
 
 app.use("/",authRouter);
 app.use("/",profileRouter);
 app.use("/",requestRouter);
+app.use("/",userRouter);
 //get user by email
 app.get("/user", async (req,res)=> {
  const Useremail=req.body.EmailId; //reading the requuest from the body what ever the email I am gettin
