@@ -29,4 +29,29 @@ userRouter.get("/user/requests/received" ,userAuth,async(req,res)=>{
     }
 }
 );
+
+userRouter.get("/user/connections" ,userAuth,async(req,res)=>{
+try{
+    const loggedInUser= req.user;
+
+    const connectionRequests=await connectionRequest.find({
+
+        $or:[
+            { toUserId: loggedInUser, status: "accepted" }, //if logged in user is the toUserId and status is accepted
+            { fromUserId: loggedInUser, status: "accepted"}
+        ],
+    }).populate("fromUserId", "firstName lastName photoUrl Skills About").populate("toUserId", "firstName lastName photoUrl Skills About"); //fetching the user details of both fromUserId 
+     const data= connectionRequests.map((row) => {
+         if(row.fromUserId.toString() === loggedInUser._id.toString()){
+            return row.toUserId;
+        }
+            return row.fromUserId;
+         }); //mapping through the connection requests and returning the user details of the connected user
+    res.json({
+        data
+    });
+} catch(err){
+    res.status(400).send("Error"+err.message);
+}
+});
 module.exports= userRouter;
